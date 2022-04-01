@@ -1,0 +1,159 @@
+# OMP study
+
+
+## INTRODUÇÃO
+- OpenMP é uma API para escrever código multithread
+
+
+## CRIANDO THREADS
+- Construtor simples de um OMP
+
+    Ex.:
+        #pragma omp <construct>
+
+
+- Construtor de uma região paralela
+
+    Ex.:
+        #pragma omp parallel {
+
+        }
+
+
+- Operadores que nos entregam resultados interessantes:
+
+    Ex.:
+        - omp_get_thread_num() --> entrega o ID da thread atual
+        - omp_get_num_threads() --> entrega a quantidade total de omp_get_num_threads
+        - omp_get_wtime() --> tempo em segundos a partir de um ponto fixado
+
+
+## SINCRONIZAÇÃO
+--> Tem o intuito de proteger o acesso a variáveis e dados pelas threads
+
+Tipos de sync:
+    - critical
+    - atomic
+
+
+### SINCRONIZAÇÃO critical
+
+    --> uma thread por vez pode entrar em uma região crítica.
+
+    --> Representada por:
+        #pragma omp critical {
+
+        }
+
+### SINCRONIZAÇÃO atomic
+
+    --> quase a mesma coisa que o critical só que funciona apenas para atualizar ou ler dados
+
+    --> Representada por:
+        #pragma omp atomic {
+
+        }
+
+
+## PARALLEL LOOPS
+
+- Construtor para uma região de for loop
+
+    Ex.:
+        #pragma omp parallel for      // Nesse caso o i se torna uma variavel privada dentro do escopo do for loop
+        for (int i = 0; i < n; i++) {
+        }
+
+- Caso em que ocorre o problema de "reduction", ou seja, há uma dependência entre o valor que está dentro
+e o valor que está fora. Geralmente isso ocorre nos casos de acumular valor em uma variável.
+
+    reduction(operação: list variavel)
+
+    Ex.:
+        #pragma omp parallel for <pode adicionar mais elementos aqui como private(var, var...), reduction(<symbol>: var)>
+        for (int i = 0; i < n; i++) {
+        }
+
+
+## SINCRONIZAÇÃO (Mais alguns tópicos)
+
+### SINCRONIZAÇÃO barrier
+
+    --> Cada thread espera até que todas as threads acabem
+
+    Ex.:
+    #pragma omp parallel shared (A, B, C) private(id)
+    {
+        id=omp_get_thread_num();
+        A[id] = big_calc1(id);
+
+        #pragma omp barrier
+        #pragma omp for
+        for(i=0;i<N;i++){
+            C[i]=big_calc3(i,A);
+        } --> implicit barrier at the end of a for worksharing construct
+        
+        #pragma omp for nowait
+        for(i=0;i<N;i++){
+            B[i]=big_calc2(C, i);
+        } --> no implicit barrier due to nowait
+
+        A[id] = big_calc4(id);
+    }
+
+### SINCRONIZAÇÃO ordered
+
+--> O bloco ordered é executado de forma sequencial
+
+    Ex.:
+    #pragma omp parallel for private(tmp) ordered reduction(+:res)
+    for (I=0;I<N;I++){
+        tmp = NEAT_STUFF(I);
+        
+        #pragma ordered
+        res += consum(tmp);
+    }
+
+## Construtor MASTER
+
+--> Denota a execução que é feita apenas pela thread principal
+
+--> As outras threads apenas ignoram aquele bloco
+
+    Ex.:
+
+    #pragma omp parallel
+    {
+        do_many_things();
+        #pragma omp master
+        { 
+            exchange_boundaries();
+        }
+
+        #pragma omp barrier
+        do_many_other_things();
+    }
+
+## Construtor SINGLE
+
+--> Um bloco é executado por uma thread apenas uma vez, não necessariamente a master
+que executa esse bloco
+
+    Ex.:
+    #pragma omp parallel
+    {
+        do_many_things();
+        #pragma omp single
+        {
+            exchange_boundaries();
+        }
+        do_many_other_things();
+    }
+
+
+## DATA SHARING
+
+    - shared
+    - private (cria uma copia da variavel para cada thread)
+    - firstprivate
+    - lastprivate
