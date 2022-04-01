@@ -3,7 +3,7 @@
 
 static long num_steps = 100000;
 double step;
-void main()
+int main()
 {
     int i;
     double x, pi, sum = 0.0;
@@ -14,4 +14,5 @@ void main()
         sum = sum + 4.0 / (1.0 + x * x);
     }
     pi = step * sum;
+    return 1;
 }
