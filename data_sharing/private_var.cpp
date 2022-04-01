@@ -6,9 +6,8 @@
 
 int main()
 {
-    #pragma omp parallel
     int tmp = 0;
-    #pragma omp for private(tmp)
+    #pragma omp parallel for private(tmp)
     for (int i = 0; i < 100; i++)
     {
         tmp += i;
