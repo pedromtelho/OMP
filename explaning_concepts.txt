@@ -154,6 +154,6 @@ que executa esse bloco
 ## DATA SHARING
 
     - shared
-    - private (cria uma copia da variavel para cada thread)
-    - firstprivate
-    - lastprivate
+    - private (cria uma copia da variavel para cada thread) --> verificar exemplo no dir ./data_sharing
+    - firstprivate (inicializa cada copia privada nas threads com o valor inicial da thread master)
+    - lastprivate 
