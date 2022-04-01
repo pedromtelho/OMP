@@ -4,9 +4,8 @@
 
 int main()
 {
-    #pragma omp parallel
     int tmp = 0;
-    #pragma omp for firstprivate(tmp)
+    #pragma omp parallel for firstprivate(tmp)
     for (int i = 0; i < 100; i++)
     {
         tmp += i;
